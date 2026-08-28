@@ -1,0 +1,96 @@
+dump_bed_calibrator:
+  ros__parameters:
+    use_sim_time: true
+
+    # Incoming RoboSense PointCloud2
+    input_topic: /rslidar_points
+    qos_depth: 1
+    qos_reliability: best_effort
+
+    # Blender/Open3D template point cloud. Use an absolute path.
+    template_path: /home/opera/humble_ws/src/mst110cr_ros2/mst110cr_loadsense/model/mst110cr_vessel_registration_03.ply
+    # Publish the raw template in target_frame_id coordinates.
+    template_points_topic: template_points
+    template_publish_hz: 1.0
+
+    # GICP estimates:
+    #   p_target = T_target_source * p_source
+    # TF is broadcast as parent=target_frame_id, child=source_frame_id.
+    source_frame_id: rslidar
+    target_frame_id: dump_bed
+    # Periodically rebroadcast the latest accepted transform.
+    transform_publish_hz: 10.0
+    require_matching_input_frame: true
+    use_input_stamp: false
+
+    # GICP runs only when the calibrate Trigger service is called.
+    min_input_points: 100
+
+    # 0 disables pre-voxel point-count limiting.
+    max_input_points: 0
+
+    # Crop box is expressed in source_frame_id coordinates.
+    crop_enabled: false
+    crop_min: [-10.0, -10.0, -5.0]
+    crop_max: [ 10.0,  10.0, 10.0]
+
+    remove_outliers: false
+    outlier_nb_neighbors: 20
+    outlier_std_ratio: 2.0
+
+    coarse_voxel_size: 0.05
+    coarse_max_correspondence_distance: 0.25
+    coarse_max_iterations: 80
+
+    fine_voxel_size: 0.02
+    fine_max_correspondence_distance: 0.08
+    fine_max_iterations: 60
+
+    gicp_epsilon: 0.001
+    relative_fitness: 1.0e-7
+    relative_rmse: 1.0e-7
+    use_robust_kernel: true
+    robust_kernel_scale: 0.05
+
+    # First-frame initial guess: source -> target.
+    # RPY units are radians, using Rz(yaw) * Ry(pitch) * Rx(roll).
+    initial_translation: [3.0, 0.0, 2.0]
+    initial_rpy: [0.0, 0.0, 3.14]
+    use_previous_result_as_initial_guess: false
+
+    # TF is published only when both tests pass.
+    min_fitness: 0.10
+    max_inlier_rmse: 0.10
+
+    log_every_n: 1
+
+load_volume_estimator:
+  ros__parameters:
+    use_sim_time: true
+
+    # Point cloud is transformed into target_frame_id before clipping.
+    input_topic: /rslidar_points
+    target_frame_id: dump_bed
+    tf_timeout_sec: 0.1
+    use_input_stamp: false
+    qos_depth: 1
+    qos_reliability: best_effort
+
+    # Axis-aligned vessel bounds in target_frame_id coordinates, in metres.
+    clip_min: [-0.50526, -1.1744, 0.14424]
+    clip_max: [ 3.0,  1.1744, 1.4424] # 1.6424]
+
+    # Triangle mesh of the dump bed inner surface in target_frame_id.
+    # Downward ray casting creates the non-planar bed height map.
+    bed_mesh_path: /home/opera/humble_ws/src/mst110cr_ros2/mst110cr_loadsense/model/mst110cr_vessel_surface.ply
+
+    # Maximum Z in each occupied XY cell defines the soil surface.
+    # Volume is integrated above the polygon-based bed height map.
+    heightmap_resolution: 0.10
+    bed_fence_xz_points: [-0.50526, 0.67448, 2.204, 0.76699, 3.1913, 1.6424]
+    min_clipped_points: 10
+
+    load_volume_topic: load_volume
+    clipped_points_topic: clipped_points
+    heightmap_marker_topic: heightmap_markers
+    marker_alpha: 0.75
