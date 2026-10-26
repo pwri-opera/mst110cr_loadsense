@@ -7,8 +7,8 @@ dump_bed_calibrator:
     qos_depth: 1
     qos_reliability: best_effort
 
-    # Blender/Open3D template point cloud. Use an absolute path.
-    template_path: /home/opera/humble_ws/src/mst110cr_ros2/mst110cr_loadsense/model/mst110cr_vessel_registration_03.ply
+    # Blender/Open3D template point cloud. Relative to the package share directory.
+    template_path: model/mst110cr_vessel_registration_03.ply
     # Publish the raw template in target_frame_id coordinates.
     template_points_topic: template_points
     template_publish_hz: 1.0
@@ -82,7 +82,7 @@ load_volume_estimator:
 
     # Triangle mesh of the dump bed inner surface in target_frame_id.
     # Downward ray casting creates the non-planar bed height map.
-    bed_mesh_path: /home/opera/humble_ws/src/mst110cr_ros2/mst110cr_loadsense/model/mst110cr_vessel_surface.ply
+    bed_mesh_path: model/mst110cr_vessel_surface.ply
 
     # Maximum Z in each occupied XY cell defines the soil surface.
     # Volume is integrated above the polygon-based bed height map.

@@ -27,7 +27,7 @@ install(
 )
 
 install(
-  DIRECTORY launch param model
+  DIRECTORY launch param model rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

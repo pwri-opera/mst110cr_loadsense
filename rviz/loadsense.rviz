@@ -1,0 +1,138 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Grid (0.5 m)
+    Enabled: true
+    Value: true
+    Cell Size: 0.5
+    Plane Cell Count: 20
+    Color: 80; 80; 80
+    Alpha: 0.4
+    Reference Frame: <Fixed Frame>
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Template (cyan)
+    Enabled: true
+    Value: true
+    Topic:
+      Depth: 1
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /template_points
+    Alpha: 1
+    Color Transformer: FlatColor
+    Color: 0; 220; 255
+    Position Transformer: XYZ
+    Style: Flat Squares
+    Size (m): 0.025
+    Size (Pixels): 3
+    Decay Time: 0
+    Selectable: true
+    Use Fixed Frame: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Clipped points (white)
+    Enabled: true
+    Value: true
+    Topic:
+      Depth: 1
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /clipped_points
+    Alpha: 1
+    Color Transformer: FlatColor
+    Color: 255; 255; 255
+    Position Transformer: XYZ
+    Style: Flat Squares
+    Size (m): 0.035
+    Size (Pixels): 3
+    Decay Time: 0
+    Selectable: true
+    Use Fixed Frame: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Raw LiDAR (gray)
+    Enabled: false
+    Value: false
+    Topic:
+      Depth: 1
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /rslidar_points
+    Alpha: 1
+    Color Transformer: FlatColor
+    Color: 130; 130; 130
+    Position Transformer: XYZ
+    Style: Flat Squares
+    Size (m): 0.015
+    Size (Pixels): 3
+    Decay Time: 0
+    Selectable: true
+    Use Fixed Frame: true
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Load heightmap
+    Enabled: true
+    Value: true
+    Topic:
+      Depth: 1
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /heightmap_markers
+    Namespaces:
+      load_heightmap: true
+  - Class: rviz_default_plugins/TF
+    Name: TF
+    Enabled: true
+    Value: true
+    Show Arrows: true
+    Show Axes: true
+    Show Names: true
+    Marker Scale: 0.5
+    Frame Timeout: 15
+    Frames:
+      All Enabled: false
+      dump_bed:
+        Value: true
+      rslidar:
+        Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 30; 30; 35
+    Fixed Frame: dump_bed
+    Frame Rate: 30
+  Name: root
+  Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+  - Class: rviz_default_plugins/Measure
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 7.0
+      Focal Point:
+        X: 1.25
+        Y: 0.0
+        Z: 0.7
+      Pitch: 0.65
+      Yaw: 0.8
+      Near Clip Distance: 0.01
+      Target Frame: <Fixed Frame>
+    Saved: null
+Window Geometry:
+  Width: 1280
+  Height: 800
+  Hide Left Dock: false
+  Hide Right Dock: false

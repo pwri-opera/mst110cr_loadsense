@@ -10,6 +10,7 @@ import open3d as o3d
 from skimage.restoration import inpaint_biharmonic
 
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import (
@@ -226,7 +227,10 @@ class LoadVolumeEstimator(Node):
             raise ValueError("bed_mesh_path must not be empty.")
         bed_mesh_path = Path(self.bed_mesh_path).expanduser()
         if not bed_mesh_path.is_absolute():
-            raise ValueError("bed_mesh_path must be an absolute path.")
+            bed_mesh_path = (
+                Path(get_package_share_directory("mst110cr_loadsense")) / bed_mesh_path
+            )
+        self.bed_mesh_path = str(bed_mesh_path)
         if not bed_mesh_path.is_file():
             raise FileNotFoundError(f"Bed mesh not found: {bed_mesh_path}")
         if not math.isfinite(self.tf_timeout_sec) or self.tf_timeout_sec < 0.0:

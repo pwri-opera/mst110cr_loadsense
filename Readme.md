@@ -46,8 +46,41 @@ ros2 launch mst110cr_loadsense loadsense_launch.py \
 | `use_sim_time` | `false` | `true` の場合、両ノードでシミュレーション時刻を使用 |
 
 - launch 引数の `use_sim_time` は YAML 内の値より後に適用されるため、launch から指定した値が優先
-- 同梱 YAML の `template_path` と `bed_mesh_path` は絶対パスで記載されているため、配置先に合わせて修正
+- 同梱 YAML の `template_path` と `bed_mesh_path` は `model/...` の相対パス。ノードが `mst110cr_loadsense` の share ディレクトリを基準に解決するため、配置先に合わせた修正は不要。モデルはビルド時に `share/mst110cr_loadsense/model` へインストールされる。外部モデルの絶対パスも指定可能
 
+
+## RViz view
+
+loadsense と LiDAR を起動した状態で、別ターミナルから RViz のみを起動できます。
+
+```bash
+source install/setup.bash
+ros2 launch mst110cr_loadsense loadsense_rviz_launch.py
+# シミュレーション・rosbag 再生では loadsense と同じ時刻設定にする
+# ros2 launch mst110cr_loadsense loadsense_rviz_launch.py use_sim_time:=true
+```
+
+設定ファイルは `rviz/loadsense.rviz`（install 後はパッケージ share 内）です。
+Fixed Frame は `dump_bed`、荷台を斜め上から見る視点に設定しています。
+
+| Display | Topic | 表示 |
+| --- | --- | --- |
+| Template (cyan) | `/template_points` | 水色の荷台テンプレート |
+| Clipped points (white) | `/clipped_points` | 白色の荷台内点群 |
+| Load heightmap | `/heightmap_markers` | 積載高の立方体群 |
+| TF | `/tf` | `dump_bed` と `rslidar` の座標軸 |
+| Raw LiDAR (gray) | `/rslidar_points` | 全点群。初期状態は OFF、位置合わせ確認時に有効化 |
+
+点群とマーカーの購読 QoS は Best Effort / Volatile です。
+トピック名や荷台フレームを変更した場合は RViz の Topic / Fixed Frame も変更してください。
+点群を受信後に `ros2 service call /calibrate std_srvs/srv/Trigger '{}'` で位置合わせできます。
+遠隔 PC でこの view を開くと、有効な Display の点群・マーカーが通信されます。
+
+積載体積の独自メッセージは標準 RViz では直接表示できないため、数値は次で確認します。
+
+```bash
+ros2 topic echo /load_volume
+```
 
 ## ROS2 Node
 
@@ -107,7 +140,7 @@ ros2 run mst110cr_loadsense load_volume_estimator --ros-args \
 | パラメータ | 既定値 | 説明 |
 | --- | --- | --- |
 | `input_topic` | `/rslidar_points` | 入力点群トピック |
-| `template_path` | "" | GICP の目標となる点群ファイル。実行時に存在するパスを指定 |
+| `template_path` | "" | GICP の目標となる点群ファイル。パッケージ share 基準の相対パス、または絶対パスを指定 |
 | `template_points_topic` | `template_points` | 生のテンプレート点群の出力先 |
 | `template_publish_hz` | `1.0` | テンプレート点群の配信周期 [Hz] |
 | `source_frame_id` | `rslidar` | 入力点群（LiDAR）のフレーム |
@@ -163,7 +196,7 @@ ros2 run mst110cr_loadsense load_volume_estimator --ros-args \
 | `use_input_stamp` | `true` | 入力時刻の TF と出力時刻を使用。`false` なら最新 TF と現在時刻を使用 |
 | `clip_min` | `[-3.0, -1.5, 0.0]` | target 座標における荷台範囲の XYZ 最小値 [m] |
 | `clip_max` | `[3.0, 1.5, 3.0]` | target 座標における荷台範囲の XYZ 最大値 [m] |
-| `bed_mesh_path` | "" | 荷台内面の三角形メッシュ。実行時に存在する絶対パスが必要 |
+| `bed_mesh_path` | "" | 荷台内面の三角形メッシュ。パッケージ share 基準の相対パス、または絶対パスを指定 |
 | `heightmap_resolution` | `0.10` | XY ハイトマップのセル幅 [m] |
 | `bed_fence_xz_points` | `[-3.0, 1.5, 3.0, 1.5]` | 荷台上端の `[x0, z0, x1, z1, ...]`。x は昇順。端部の補間値を制限 |
 | `min_clipped_points` | `10` | 体積を出力するために必要な切り出し後の最小点数 |

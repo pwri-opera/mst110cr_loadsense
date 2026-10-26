@@ -11,6 +11,7 @@ import numpy as np
 import open3d as o3d
 
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import TransformStamped
 from rclpy.node import Node
 from rclpy.qos import (
@@ -323,6 +324,12 @@ class GicpTfNode(Node):
     def _validate_parameters(self) -> None:
         if not self.template_path:
             raise ValueError("ROS parameter 'template_path' must not be empty.")
+        template_path = Path(self.template_path).expanduser()
+        if not template_path.is_absolute():
+            template_path = (
+                Path(get_package_share_directory("mst110cr_loadsense")) / template_path
+            )
+        self.template_path = str(template_path)
         if not self.template_points_topic:
             raise ValueError("template_points_topic must not be empty.")
         if (
