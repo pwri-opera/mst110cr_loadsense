@@ -1,4 +1,4 @@
-dump_bed_calibrator:
+/mst110cr_2/dump_bed_calibrator:
   ros__parameters:
     use_sim_time: true
 
@@ -54,8 +54,8 @@ dump_bed_calibrator:
 
     # First-frame initial guess: source -> target.
     # RPY units are radians, using Rz(yaw) * Ry(pitch) * Rx(roll).
-    initial_translation: [3.0, 0.0, 2.0]
-    initial_rpy: [0.0, 0.0, 3.14]
+    initial_translation: [3.639, 1.219, 2.179]  # x, y, z [m]
+    initial_rpy: [-0.012, 0.140, -2.794]       # roll, pitch, yaw [rad]
     use_previous_result_as_initial_guess: false
 
     # TF is published only when both tests pass.
@@ -64,7 +64,7 @@ dump_bed_calibrator:
 
     log_every_n: 1
 
-load_volume_estimator:
+/mst110cr_2/load_volume_estimator:
   ros__parameters:
     use_sim_time: true
 
