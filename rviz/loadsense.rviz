@@ -24,7 +24,7 @@ Visualization Manager:
       Durability Policy: Volatile
       History Policy: Keep Last
       Reliability Policy: Best Effort
-      Value: /template_points
+      Value: /mst110cr_2/template_points
     Alpha: 1
     Color Transformer: FlatColor
     Color: 0; 220; 255
@@ -44,7 +44,7 @@ Visualization Manager:
       Durability Policy: Volatile
       History Policy: Keep Last
       Reliability Policy: Best Effort
-      Value: /clipped_points
+      Value: /mst110cr_2/clipped_points
     Alpha: 1
     Color Transformer: FlatColor
     Color: 255; 255; 255
@@ -64,7 +64,7 @@ Visualization Manager:
       Durability Policy: Volatile
       History Policy: Keep Last
       Reliability Policy: Best Effort
-      Value: /rslidar_points
+      Value: /mst110cr_2/rslidar_points
     Alpha: 1
     Color Transformer: FlatColor
     Color: 130; 130; 130
@@ -84,7 +84,7 @@ Visualization Manager:
       Durability Policy: Volatile
       History Policy: Keep Last
       Reliability Policy: Best Effort
-      Value: /heightmap_markers
+      Value: /mst110cr_2/heightmap_markers
     Namespaces:
       load_heightmap: true
   - Class: rviz_default_plugins/TF
@@ -97,15 +97,11 @@ Visualization Manager:
     Marker Scale: 0.5
     Frame Timeout: 15
     Frames:
-      All Enabled: false
-      dump_bed:
-        Value: true
-      rslidar:
-        Value: true
+      All Enabled: true
   Enabled: true
   Global Options:
     Background Color: 30; 30; 35
-    Fixed Frame: dump_bed
+    Fixed Frame: mst110cr_2/dump_bed
     Frame Rate: 30
   Name: root
   Tools:

@@ -42,9 +42,16 @@ ros2 launch mst110cr_loadsense loadsense_launch.py \
 
 | 引数 | 既定値 | 説明 |
 | --- | --- | --- |
+| `namespace` | `mst110cr_2` | ノードnamespace・TFフレーム名・点群トピックの接頭辞 |
+| `source_frame_id` | `<namespace>/rslidar` | LiDARのTF名と配信点群のframe_id |
+| `target_frame_id` | `<namespace>/dump_bed` | 荷台のTF名 |
 | `params_file` | パッケージ内の `param/loadsense.yaml` | 使用するパラメータ YAML の絶対パス |
 | `use_sim_time` | `false` | `true` の場合、両ノードでシミュレーション時刻を使用 |
 
+- `namespace:=mst110cr_2`（既定値）ではTF名は `mst110cr_2/rslidar` と `mst110cr_2/dump_bed`。`namespace:=robot3` で両方の接頭辞を変更でき、空文字なら接頭辞なし。フレーム名は `source_frame_id` / `target_frame_id` でも個別指定可能。これらのlaunch引数はパラメータYAMLより優先される。LiDAR用YAMLは起動時に一時生成し、終了時に削除する。
+- 点群トピックもnamespaceに追従し、既定では `/mst110cr_2/rslidar_points`。SDKの配信先・両loadsenseノードの `input_topic`・RVizの購読先に反映する。launchで設定する `input_topic` はパラメータYAMLより優先される。空namespaceの場合は `/rslidar_points`。
+- 同梱パラメータYAMLはノード名に対するワイルドカードを使い、namespace変更後も設定を適用する。独自YAMLを使う場合もノード名の指定を合わせる。
+- rosbagなど外部から点群を入力する場合は、その `header.frame_id` と `source_frame_id` を一致させる。
 - launch 引数の `use_sim_time` は YAML 内の値より後に適用されるため、launch から指定した値が優先
 - 同梱 YAML の `template_path` と `bed_mesh_path` は `model/...` の相対パス。ノードが `mst110cr_loadsense` の share ディレクトリを基準に解決するため、配置先に合わせた修正は不要。モデルはビルド時に `share/mst110cr_loadsense/model` へインストールされる。外部モデルの絶対パスも指定可能
 
@@ -61,25 +68,30 @@ ros2 launch mst110cr_loadsense loadsense_rviz_launch.py
 ```
 
 設定ファイルは `rviz/loadsense.rviz`（install 後はパッケージ share 内）です。
-Fixed Frame は `dump_bed`、荷台を斜め上から見る視点に設定しています。
+launchではFixed Frameを `mst110cr_2/dump_bed` に設定し、荷台を斜め上から見る視点に設定しています。
 
 | Display | Topic | 表示 |
 | --- | --- | --- |
-| Template (cyan) | `/template_points` | 水色の荷台テンプレート |
-| Clipped points (white) | `/clipped_points` | 白色の荷台内点群 |
-| Load heightmap | `/heightmap_markers` | 積載高の立方体群 |
-| TF | `/tf` | `dump_bed` と `rslidar` の座標軸 |
-| Raw LiDAR (gray) | `/rslidar_points` | 全点群。初期状態は OFF、位置合わせ確認時に有効化 |
+| Template (cyan) | `/mst110cr_2/template_points` | 水色の荷台テンプレート |
+| Clipped points (white) | `/mst110cr_2/clipped_points` | 白色の荷台内点群 |
+| Load heightmap | `/mst110cr_2/heightmap_markers` | 積載高の立方体群 |
+| TF | `/tf` | `mst110cr_2/dump_bed` と `mst110cr_2/rslidar` の座標軸 |
+| Raw LiDAR (gray) | `/mst110cr_2/rslidar_points` | 全点群。初期状態は OFF、位置合わせ確認時に有効化 |
 
 点群とマーカーの購読 QoS は Best Effort / Volatile です。
-トピック名や荷台フレームを変更した場合は RViz の Topic / Fixed Frame も変更してください。
-点群を受信後に `ros2 service call /calibrate std_srvs/srv/Trigger '{}'` で位置合わせできます。
+RViz launchにもloadsenseと同じ `namespace` と、個別指定した場合は `target_frame_id` を渡してください。Fixed Frameと以下の購読トピックに反映されます。
+
+```bash
+ros2 launch mst110cr_loadsense loadsense_launch.py namespace:=mst110cr_2
+ros2 launch mst110cr_loadsense loadsense_rviz_launch.py namespace:=mst110cr_2
+```
+点群を受信後に `ros2 service call /mst110cr_2/calibrate std_srvs/srv/Trigger '{}'` で位置合わせできます。
 遠隔 PC でこの view を開くと、有効な Display の点群・マーカーが通信されます。
 
 積載体積の独自メッセージは標準 RViz では直接表示できないため、数値は次で確認します。
 
 ```bash
-ros2 topic echo /load_volume
+ros2 topic echo /mst110cr_2/load_volume
 ```
 
 ## ROS2 Node
@@ -98,7 +110,7 @@ ros2 run mst110cr_loadsense dump_bed_calibrator --ros-args \
 点群を1回以上受信した後、`/calibrate` サービスを呼び出して GICP キャリブレーションを実行
 
 ```bash
-ros2 service call /calibrate std_srvs/srv/Trigger '{}'
+ros2 service call /mst110cr_2/calibrate std_srvs/srv/Trigger '{}'
 ```
 
 
@@ -119,11 +131,11 @@ ros2 run mst110cr_loadsense load_volume_estimator --ros-args \
 
 | ノード | 種別 | 名前（既定値） | 型 | 説明 |
 | --- | --- | --- | --- | --- |
-| `dump_bed_calibrator` | Topic (in) | `/rslidar_points` | `sensor_msgs/msg/PointCloud2` | キャリブレーションに使用する LiDAR 点群 |
+| `dump_bed_calibrator` | Topic (in) | `/mst110cr_2/rslidar_points` | `sensor_msgs/msg/PointCloud2` | キャリブレーションに使用する LiDAR 点群 |
 | `dump_bed_calibrator` | Service (in) | `calibrate` | `std_srvs/srv/Trigger` | 最新点群で GICP を実行 |
 | `dump_bed_calibrator` | Topic (out) | `template_points` | `sensor_msgs/msg/PointCloud2` | 荷台座標系のテンプレート点群 |
 | `dump_bed_calibrator` | TF Topic (out) | `dump_bed -> rslidar` | TF | GICP で推定した荷台・LiDAR 間の変換 |
-| `load_volume_estimator` | Topic (in) | `/rslidar_points` | `sensor_msgs/msg/PointCloud2` | 体積推定に使用する点群 |
+| `load_volume_estimator` | Topic (in) | `/mst110cr_2/rslidar_points` | `sensor_msgs/msg/PointCloud2` | 体積推定に使用する点群 |
 | `load_volume_estimator` | Topic (out) | `load_volume` | `mst110cr_loadsense/msg/FloatStamped` | 推定体積 |
 | `load_volume_estimator` | Topic (out) | `clipped_points` | `sensor_msgs/msg/PointCloud2` | 荷台範囲内に切り出した点群 |
 | `load_volume_estimator` | Topic (out) | `heightmap_markers` | `visualization_msgs/msg/MarkerArray` | RViz 表示用の積載高ハイトマップ |

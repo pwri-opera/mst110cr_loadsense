@@ -1,4 +1,4 @@
-/mst110cr_2/dump_bed_calibrator:
+/**/dump_bed_calibrator:
   ros__parameters:
     use_sim_time: true
 
@@ -64,7 +64,7 @@
 
     log_every_n: 1
 
-/mst110cr_2/load_volume_estimator:
+/**/load_volume_estimator:
   ros__parameters:
     use_sim_time: true
 
