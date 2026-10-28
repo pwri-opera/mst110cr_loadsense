@@ -41,6 +41,21 @@ def _launch_nodes(context):
 
     return [
         RegisterEventHandler(OnShutdown(on_shutdown=[OpaqueFunction(function=cleanup)])),
+        # mst110cr.xacro: vessel_pin_joint at zero angle relative to body_link.
+        Node(
+            namespace=namespace,
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="body_to_dump_bed",
+            output="screen",
+            arguments=[
+                "--x", "-2.389", "--y", "0", "--z", "0.562",
+                "--roll", "0", "--pitch", "0", "--yaw", "0",
+                "--frame-id", "/".join(filter(None, [namespace, "body_link"])),
+                "--child-frame-id", target_frame,
+            ],
+            parameters=[{"use_sim_time": common_parameters["use_sim_time"]}],
+        ),
         Node(
             namespace=namespace,
             package="mst110cr_loadsense",

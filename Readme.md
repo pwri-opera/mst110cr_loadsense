@@ -56,6 +56,13 @@ ros2 launch mst110cr_loadsense loadsense_launch.py \
 - 同梱 YAML の `template_path` と `bed_mesh_path` は `model/...` の相対パス。ノードが `mst110cr_loadsense` の share ディレクトリを基準に解決するため、配置先に合わせた修正は不要。モデルはビルド時に `share/mst110cr_loadsense/model` へインストールされる。外部モデルの絶対パスも指定可能
 
 
+loadsense launchは `body_link → dump_bed` の固定TFも配信する。値はdescriptionの
+`vessel_pin_joint`が0度のときに合わせ、並進 `(-2.389, 0, 0.562)` m、
+roll/pitch/yawはすべて0 rad。既定では
+`mst110cr_2/body_link → mst110cr_2/dump_bed → mst110cr_2/rslidar` となる。
+親フレームはnamespaceに追従し、子フレームは `target_frame_id` を使用する。
+この固定TFは荷台の実際の関節角度には追従しない。
+
 ## RViz view
 
 loadsense と LiDAR を起動した状態で、別ターミナルから RViz のみを起動できます。
